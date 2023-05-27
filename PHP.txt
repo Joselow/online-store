@@ -1,0 +1,5 @@
+-number_format()
+
+-file_exists()
+
+-hash_hmac()
