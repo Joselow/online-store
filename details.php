@@ -8,22 +8,20 @@
     $id = isset($_GET['id']) ? $_GET['id'] : '';
     $token = isset($_GET['token']) ? $_GET['token'] : '';
 
-    $token_tmp = hash_hmac('sha1',$id, KEY_TOKEN);
+    $token_tmp = hash_hmac('sha1',$id, KEY_TOKEN);  // token temporal para validar la ruta
 
     if ( $id == '' || $token == '' ||$token != $token_tmp ){
         echo 'Error al procesar la pertición';
         exit;
     }
-
     
     $sql = $con->prepare("SELECT count(id) FROM products WHERE id=? AND is_active=1");
     $sql->execute([$id]);
-    if( $sql->fetchColumn() > 0  ) {
+
+    if( $sql->fetchColumn()) {
         $sql = $con->prepare("SELECT id,name, description, price, discount FROM products WHERE id=? AND is_active=1");
         $sql->execute([$id]);
-        $result = $sql->fetch(PDO::FETCH_ASSOC);
-
-
+        $result = $sql->fetch(PDO::FETCH_ASSOC);  // trae una sola fila en un array
 
         $discount =  $result['discount'] > 0 ? $result['price'] - ($result['price'] * $result['discount']/100) : 0;
         $rutaImg = "images/products/".$result['id']."/main.jpg";
@@ -71,7 +69,9 @@
             </li>  
             
         </ul>
-        <a class="btn btn-primary" href="carrito.php">Carrito</a>
+        <a class="btn btn-primary" href="carrito.php">
+        Carrito <span id="num_cart" class="badge  bg-secondary"> <?php echo $num_cart ?> </span> 
+        </a>
       </div>
     </div>
   </div>
@@ -121,7 +121,9 @@
                 </p>
                 <div class="d-grid gap-3 col-10 mx-auto">
                     <button class="btn btn-primary">Comprar Ahora</button>
-                    <button class="btn btn-outline-primary">Agregar al Carrito</button>
+                    <button class="btn btn-outline-primary" 
+                        onclick="addProduct( <?php echo $id ?>, '<?php echo $token_tmp ?>' )" >Agregar al Carrito
+                    </button>
                 </div>
 
             </div>
@@ -133,7 +135,32 @@
     
 
 
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+
+<script>
+    const addProduct = (id, token) => {
+        let url = 'class/cart.php'
+        let formData = new FormData()
+        formData.append('id', id)
+        formData.append('token', token)
+
+        fetch(url,{
+            method : 'POST',
+            body : formData,
+            mode : 'cors' //mechanism that allows web browsers to make cross-origin HTTP requests safely.
+        }).then(response => response.json())
+        .then( data => {
+            if(data.ok){
+                let element = document.querySelector('#num_cart')
+                element.innerHTML = data.numbers
+            }
+        })
+
+    } 
+
+</script>
+
+
+
 </body>
 </html>

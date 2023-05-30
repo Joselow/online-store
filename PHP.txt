@@ -1,5 +1,11 @@
--number_format()
+Data PHP
+**********
+-number_format()  -- da formatos a los numeros
 
--file_exists()
+-file_exists()  -- comprueba que la ruta que le apses sea valida(budcar archivos)
 
--hash_hmac()
+-hash_hmac() -- encripta una contra con una clave, token ..
+
+define("XD", "Valor de xD") -- puedes usar XD como una variable 
+
+. isset() -- es null o no
